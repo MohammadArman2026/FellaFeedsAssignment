@@ -1,5 +1,7 @@
 package com.arman.dev.fellafeedsassignment.feature.login.presentation.screen
 
+import android.health.connect.datatypes.units.Length
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,29 +13,75 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arman.dev.fellafeedsassignment.R
+import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginEffect
+import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginIntent
+import com.arman.dev.fellafeedsassignment.feature.login.presentation.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+
+    val  snackBarState = remember {
+        SnackbarHostState()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {effect ->
+
+            when(effect){
+                LoginEffect.NavigateToOtp -> {
+                    //trigger navigation
+                    snackBarState.showSnackbar("trigger navigate to otp")
+                }
+                is LoginEffect.ShowToast -> {
+                    //show toast or snack bar
+                    snackBarState.showSnackbar(effect.message)
+                }
+            }
+        }
+    }
+
+    val uiState by viewModel.loginUiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackBarState
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -70,8 +118,13 @@ fun LoginScreen() {
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth().height(54.dp).padding(horizontal = 16.dp),
-                value = "" ,
-                onValueChange = {} ,
+                value = uiState.phoneNumber,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                ),
+                onValueChange = {
+                    viewModel.onIntent(LoginIntent.PhoneNumberChanged(it))
+                } ,
                 placeholder = {
                     Text(
                         text = "Enter your mobile number"
@@ -91,6 +144,7 @@ fun LoginScreen() {
                     )
             ){
                 Button(
+                    enabled = uiState.isContinueButtonEnabled && !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp) ,
@@ -99,11 +153,23 @@ fun LoginScreen() {
                         containerColor = Color(0xFF1F1F1F) ,
                         contentColor = Color.White
                     ),
-                    onClick = {}
+                    onClick = {
+                        viewModel.onIntent(LoginIntent.ContinueClicked)
+                    }
                 ) {
-                    Text(
-                        text = "Continue"
-                    )
+                    when{
+                        uiState.isLoading->{
+                            CircularProgressIndicator(
+                                modifier = Modifier ,
+                                color = Color.Black
+                            )
+                        }
+                        else->{
+                            Text(
+                                text = "Continue"
+                            )
+                        }
+                    }
                 }
             }
         }
