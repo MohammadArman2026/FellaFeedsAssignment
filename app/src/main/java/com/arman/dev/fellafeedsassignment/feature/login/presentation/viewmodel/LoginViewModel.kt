@@ -4,9 +4,12 @@ import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.arman.dev.fellafeedsassignment.core.common.Resource
+import com.arman.dev.fellafeedsassignment.feature.login.domain.repository.AuthRepository
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginEffect
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginIntent
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +19,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class LoginViewModel @Inject constructor() : ViewModel() {
+
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
     private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState = _loginUiState.asStateFlow()
 
@@ -49,15 +56,33 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 )
             }
 
-            delay(3000)
+            val result = authRepository.requestOtp(
+                phone = loginUiState.value.phoneNumber
+            )
 
-            _loginUiState.update {
-                it.copy(
-                    isLoading = false
-                )
+            when(result){
+                is Resource.Error -> {
+                    //here we can simply send event and say there occurred some error
+                    //in the snack bar.
+                }
+                is Resource.Success<*> -> {
+                    // we can send event to the ui telling it to move to the verify otp
+                    // screen.
+                }
             }
-
-            _effect.send(LoginEffect.NavigateToOtp)
         }
+    }
+
+
+    // in the same way all these function can be used and implemented
+    // this viewmodel need to be shared with the both screen or we can have different
+    //viewmodel to keep it clean.
+
+    private fun verifyOtp(){
+
+    }
+
+    private fun logout(){
+
     }
 }
