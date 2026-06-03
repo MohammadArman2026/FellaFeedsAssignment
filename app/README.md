@@ -1,5 +1,5 @@
 # FellaFeeds Assignment
 
 ## Login Screen
-![Login Screen](screenshots/otpscreen.png)
-![Boarding Screen](screenshots/img.png)
+![Login Screen](E:\FellaFeedsAssignment\screenshots\otpscreen.png)
+![Boarding Screen](E:\FellaFeedsAssignment\screenshots\img.png)
