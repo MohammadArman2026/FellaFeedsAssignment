@@ -1,7 +1,5 @@
 package com.arman.dev.fellafeedsassignment.feature.login.presentation.screen
 
-import android.health.connect.datatypes.units.Length
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -40,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.arman.dev.fellafeedsassignment.R
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginEffect
@@ -108,7 +103,7 @@ fun LoginScreen(
                     color = Color(0xFF1F1F1F)
                 )
             )
-
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Sign in or join to continue your home search." ,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)

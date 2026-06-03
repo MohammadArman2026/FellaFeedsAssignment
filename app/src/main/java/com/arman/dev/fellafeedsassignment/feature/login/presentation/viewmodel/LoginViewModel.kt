@@ -1,9 +1,7 @@
 package com.arman.dev.fellafeedsassignment.feature.login.presentation.viewmodel
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arman.dev.fellafeedsassignment.core.common.Resource
 import com.arman.dev.fellafeedsassignment.feature.login.domain.repository.AuthRepository
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginEffect
@@ -11,7 +9,6 @@ import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.Lo
 import com.arman.dev.fellafeedsassignment.feature.login.presentation.contract.LoginUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
