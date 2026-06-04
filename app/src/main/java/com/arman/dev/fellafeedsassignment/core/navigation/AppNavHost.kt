@@ -62,12 +62,20 @@ fun AppNavHost(
 
             val viewModel : AuthOtpViewModel  = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+            val context = LocalContext.current
             LaunchedEffect(Unit) {
                 viewModel.effect.collect {
                     when(it){
                         AuthOtpEffect.NavigateToOnBoardingScreen -> navController.navigate(
                             NavigationRoute.BoardingScreen.route)
+
+                        is AuthOtpEffect.ShowToastMessage -> {
+                            Toast.makeText(
+                                context ,
+                                it.message,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
             }

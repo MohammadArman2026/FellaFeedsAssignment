@@ -1,7 +1,10 @@
 package com.arman.dev.fellafeedsassignment.di
 
-import com.arman.dev.fellafeedsassignment.feature.login.data.remote.AuthApiService
-import com.arman.dev.fellafeedsassignment.feature.login.domain.repository.AuthRepository
+import com.arman.dev.fellafeedsassignment.core.network.ApiKeyInterceptor
+import com.arman.dev.fellafeedsassignment.core.utils.Utility
+import com.arman.dev.fellafeedsassignment.feature.auth.data.remote.AuthenticationApiService
+import com.arman.dev.fellafeedsassignment.feature.auth.data.repository.AuthenticationRepoImpl
+import com.arman.dev.fellafeedsassignment.feature.auth.domain.repository.AuthenticationRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -9,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -16,34 +20,55 @@ import javax.inject.Singleton
 @Module
 object NetworkModule {
 
-    val json = Json{
+    val json = Json {
         ignoreUnknownKeys = true
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit{
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
-            .baseUrl("http://localhost:8000/")
+            .baseUrl(Utility.BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 
-    // we can add interceptor from here with that we can easily pass the header and auth
-    // token but for simplicity lets leave it to the api service header.
+    /**
+     * there will be two retrofit instances since some apis need auth token
+     * and some does not need so to serve this purpose we can have named retrofit.
+     */
 
     /**
      * auth api service being injected in the auth repository.
      */
+
     @Provides
     @Singleton
-    fun provideAuthApiService(retrofit: Retrofit): AuthApiService{
-        return retrofit.create<AuthApiService>(AuthApiService::class.java)
+    fun provideApiKeyInterceptor(): ApiKeyInterceptor {
+        return ApiKeyInterceptor()
     }
 
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(interceptor: ApiKeyInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(
+                interceptor
+            )
+            .build()
+    }
 
+    @Singleton
+    @Provides
+    fun provideAuthApiService(retrofit: Retrofit): AuthenticationApiService{
+        return  retrofit.create(AuthenticationApiService::class.java)
+    }
 
+    @Singleton
+    @Provides
+    fun provideAuthenticationRepository(apiService: AuthenticationApiService): AuthenticationRepository{
+        return AuthenticationRepoImpl(apiService)
+    }
 }
-
-//json.asConverterFactory("application/json".toMediaType())
